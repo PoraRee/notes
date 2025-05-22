@@ -41,4 +41,5 @@
 | Code Maintenance             | Two code paths                                                             | Single code path                                                            |
 | Operational Overhead         | High                                                                       | Lower                                                                       |
 | Reprocessing Historical Data | Easy (re-run batch jobs)                                                   | Possible via log replay                                                     |
-| Usecases                     | - real-time analytics<br>- multiple batch processing tasks<br>- data lakes | - continuous data pipelines<br>- real-time data processing<br>- IoT systems |
+| Use-cases                    | - real-time analytics<br>- multiple batch processing tasks<br>- data lakes | - continuous data pipelines<br>- real-time data processing<br>- IoT systems |
+
