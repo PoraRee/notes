@@ -7,25 +7,16 @@
 
 ![[Lambda-Architecture.png]]
 
-| Pros                           | Cons                 |
-| ------------------------------ | -------------------- |
-| Robustness and Fault Tolerance | Complexity           |
-| Accuracy + Low Latency         | Data Consistency     |
-| Historical + Real-Time Data    | Latency              |
-| Scalable and Flexible          | Operational Overhead |
-
-
-<table border="0">
- <tr>
-    <td><b style="font-size:30px">Title</b></td>
-    <td><b style="font-size:30px">Title 2</b></td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
-</table>
-
+### Pros
+1. Robustness and Fault Tolerance: Batch layer can re-compute results from raw data to handle code bugs or corrupted results.
+2. Accuracy + Low Latency: Batch layer ensures accurate, complete results; speed layer handles low-latency, real-time needs.
+3. Historical + Real-Time Data: Supports combining long-term historical analytics with up-to-the-second insights.
+4. Scalable and Flexible: Leverages scalable technologies like Hadoop (batch) and Storm or Spark Streaming (speed).
+### Cons
+1. Complexity: Maintains two separate codebases and processing pipelines for batch and stream—high development and maintenance overhead.
+2. Data Consistency: Merging outputs from batch and speed layers can be tricky and error-prone.
+3. Latency: Batch layer can be slow, delaying the availability of full data correctness.
+4. Operational Overhead: More components to manage (e.g., Hadoop, Kafka, Storm), increasing DevOps complexity.
 
 ---
 # Kappa Architecture
