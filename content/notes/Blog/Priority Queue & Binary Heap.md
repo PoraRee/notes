@@ -1,0 +1,255 @@
+# 1. Priority Queue
+
+## 1.1 Priority Queue คืออะไร
+
+Priority Queue คือ Data Structure ที่ใช้เก็บข้อมูลโดยที่แต่ละตัวมีความสำคัญไม่เท่ากัน และเราต้องการดึง**ตัวที่สำคัญที่สุดออกมาได้เร็วที่สุด** ซึ่งต่างจาก Queue ที่ใช้หลัก First-In First-Out (FIFO)
+
+![[01_01_pq-viz.gif]]
+
+## 1.2 Priority Queue Operations
+
+จาก use-case ที่เราต้องการดึง data ที่สำคัญที่สุดจาก Priority Queue (สมมติมองว่า Min value = highest priority) ทำให้เรากำหนดการดำเนินการ (Operation) ได้ดังนี้
+
+1. **GetMin**: เรียกดูค่าที่มี priority สูงที่สุด (ไม่ได้ดึงค่าออก)
+2. **Insert**: เพิ่ม element เข้าไปใน priority queue
+3. **ExtractMin**: เรียกค่าที่มี priority สูงที่สุดออกจาก priority queue ต้องมีการหา highest priority element ใหม่
+4. **DecreaseKey**: เพิ่ม priority ของ element ใน priority queue (ลดค่า key ของ element) อาจมีการหา highest priority element ใหม่
+
+## 1.3 Priority Queue Use-cases
+- Scheduling / Job Management
+- Graph algorithm (Dijkstra Single-source Shortest Path algorithm, Prim's algorithm Minimum Spanning Tree)
+
+---
+
+---
+# 2. Binary Heap - Most practical priority queue
+
+## 2.1 Binary Heap คืออะไร
+
+**Binary Heap** คือโครงสร้างข้อมูลแบบ **Complete Binary Tree** ที่ทุกโหนดต้องเป็นไปตาม **Heap Property**
+
+![[01_02_binary-heap.png]]
+
+**Complete Binary Tree property** - Every level is full (except the last level), last one from left to right
+**Heap Property** - No child is smaller than its parent (for min-heap)
+
+## 2.2 Priority Queue Operations บน Binary Heap
+### GetMin
+
+จากคุณสมบัติของ Binary Heap ทำให้ได้ว่า Root node จะมีค่าน้อยสุดเสมอ = highest priority element
+
+### Insert
+
+![[01_02_heap-prop-violation.png]]
+
+**Insert** ไม่ขัดกับ **Complete Binary Tree Property** แต่ขัดกับ **Heap Property**
+ทำให้ต้องปรับลำดับใน heap ให้เป็นไปตาม **Heap Property** (heapify-up) ซึ่งทำได้โดย
+จาก inserted node เทียบกับ parent node
+	1. ถ้า insert node < parent node ให้ swap 2 node นี้ (ให้ priority ของ parent สูงกว่า) ทำซ้ำกับ parent node ใหม่ (recursive)
+	2. ถ้า insert node >= parent node สามารถหยุดได้เลย (แสดงว่าเป็นไปตาม heap property แล้ว)
+
+| ![[01_03_heap-insert-01.jpg\|238]] | ![[01_04_heap-insert-02.jpg\|245]] | ![[01_05_heap-insert-03.jpg\|244]] |
+| ---------------------------------- | ---------------------------------- | ---------------------------------- |
+### ExtractMin
+
+ExtractMin ไม่สามารถหยิบจาก root node มาโดยตรงได้ เพราะการหยิบ root node ออกแล้วเลื่อน child ข้างใดข้างหนึ่งมาเป็น root ทำให้ tree เปลี่ยนรูปร่าง (อาจขัดได้ทั้ง **Complete Binary Tree Property** และ **Heap Property**)
+
+| ![[01_06_false-extract-min-prop-violation.jpg]]<br>Delete Root | ![[01_07_false-extract-min-right-sift.jpg]]<br>Right Child Sift (Violate  Complete Binary Tree Properties)<br> | ![[01_07_false-extract-min-left-sift.jpg]]<br>Left Child Sift (Violate Binary Heap Properties) |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+
+เราจึงแก้ด้วยการ swap root node กับ last element ใน heap ก่อนแล้วค่อยลบ (รักษา **Complete Binary Tree Property**)
+
+| ![[01_09_extract-min-root-swap-last-node.jpg]]<br>Swap root (1) with last node (4) | ![[01_10_extract-min-del-last-node.jpg]]<br>Delete last node (1), which is the highest priority |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+
+แต่ขัดกับ **Heap Property** ทำให้ต้องปรับลำดับใน heap ให้เป็นไปตาม **Heap Property** (heapify-down) ซึ่งทำได้โดย
+
+จาก root node (ที่ไม่ใช่ highest priority) เทียบกับ children node
+1. หา min child node ระหว่าง left child กับ right child
+2. ถ้า min child node < root node ให้ swap root node กับ min child node (ให้ priority ของ parent สูงกว่า) ทำซ้ำกับ child node ที่ถูก swap (recursive)
+3. ถ้า min child node >= root node ให้หยุดได้เลย (แสดงว่าเป็นไปตาม heap property แล้ว)
+
+| ![[01_11_extract-min-root-prop-violation.jpg]]<br>root (4) < left child (2) | ![[01_12_extract-min-swap-01.jpg]]<br>Swap root node with left child<br>then (4) < right child (3) | ![[01_12_extract-min-swap-02.jpg]]<br>Swap node (4) with right child<br>then (4) > left child (7), end |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+
+### DecreaseKey
+
+DecreaseKey ทำให้ Binary Heap Properties ไม่สมบูรณ์ได้ถ้าหาก node ที่ถูก DecreaseKey นั้นมีค่าน้อยกว่า parent
+
+| ![[01_13_decrease-min-select-node.jpg]]<br>Select node (5) | ![[01_14_decrease-min-change-key.jpg]]<br>DeccreseKey to (1), violate Heap Property |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+
+ซึ่งอาจจจะขัดกับ **Heap Property** ทำให้ต้องปรับลำดับใน heap ให้เป็นไปตาม **Heap Property** (heapify-up)
+
+| ![[01_15_decrease-min-swap-01.jpg]]<br>decreasedkey node (1) < parent (3), swap | ![[01_16_decrease-min-swap-02.jpg]]decreasedkey node (1) < parent (2), swap | ![[01_17_decrease-min-swap-03.jpg]]<br>decreasedkey node (1) not have parent, end |
+| ------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+
+---
+
+
+## 2.3 Binary Heap implementation on scratch
+
+เนื่องจาก structure ของ binary heap เป็น Complete Binary Tree ที่ต้องเติม children ให้ครบก่อนในแต่ละ level และเรียงจากซ้ายไปขวา ทำให้เราสามารถ implement บน array ได้ โดย
+- Root node = `arr[0]`
+- Parent node of node `i` = `arr[(i-1)/2`
+- Left child node of parent node `i` = `arr[(2*i) + 1]`
+- Right child node of parent node `i` = `arr[(2*i) + 2]`
+
+```python
+class MinHeap:
+    def __init__(self):
+        """Initialize an empty heap."""
+        self.heap = []
+
+    def get_parent_index(self, index):
+        return (index - 1) // 2
+
+    def get_left_child_index(self, index):
+        return (2 * index) + 1
+
+    def get_right_child_index(self, index):
+        return (2 * index) + 2
+
+    def has_parent(self, index):
+        return self.get_parent_index(index) >= 0
+
+    def has_left_child(self, index):
+        return self.get_left_child_index(index) < len(self.heap)
+
+    def has_right_child(self, index):
+        return self.get_right_child_index(index) < len(self.heap)
+
+    def swap(self, index1, index2):
+        self.heap[index1], self.heap[index2] = self.heap[index2], self.heap[index1]
+
+    def peek(self):
+        """Return the minimum element without removing it."""
+        if not self.heap:
+            raise IndexError("Heap is empty")
+        return self.heap[0]
+
+    def insert(self, key):
+        """Insert a new key into the heap. Time Complexity: O(log n)"""
+        self.heap.append(key)
+        self.heapify_up(len(self.heap) - 1)
+
+    def extract_min(self):
+        """Remove and return the minimum element. Time Complexity: O(log n)"""
+        if not self.heap:
+            raise IndexError("Heap is empty")
+        
+        min_element = self.heap[0]
+        if len(self.heap) == 1:
+            self.heap.pop()
+            return min_element
+            
+        # Move the last element to the root
+        self.heap[0] = self.heap.pop()
+        
+        # Restore heap property downward
+        self.heapify_down(0)
+        return min_element
+
+    def decrease_key(self, index, new_value):
+        """
+        Decreases the value of the key at the given index to new_value.
+        Time Complexity: O(log n)
+        """
+        if index < 0 or index >= len(self.heap):
+            raise IndexError("Index out of bounds")
+        
+        if new_value > self.heap[index]:
+            raise ValueError("New value is greater than the current value")
+            
+        self.heap[index] = new_value
+        self.heapify_up(index)
+
+    def heapify_up(self, index):
+        """Move the element up until the heap property is restored."""
+        while (self.has_parent(index) and 
+               self.heap[self.get_parent_index(index)] > self.heap[index]):
+            parent_idx = self.get_parent_index(index)
+            self.swap(parent_idx, index)
+            index = parent_idx
+
+    def heapify_down(self, index):
+        """Move the element down until the heap property is restored."""
+        while self.has_left_child(index):
+            smaller_child_index = self.get_left_child_index(index)
+            
+            if (self.has_right_child(index) and 
+                self.heap[self.get_right_child_index(index)] < self.heap[smaller_child_index]):
+                smaller_child_index = self.get_right_child_index(index)
+                
+            if self.heap[index] <= self.heap[smaller_child_index]:
+                break
+            else:
+                self.swap(index, smaller_child_index)
+                
+            index = smaller_child_index
+```
+## 2.4 Binary Heap Time Complexity
+
+| Operations               | Time Complexity | Description                                                |
+| ------------------------ | --------------- | ---------------------------------------------------------- |
+| GetMin                   | `O(1)`          | Accessing the root node directly.                          |
+| **Insert**               | `O(log n)`      | Bubbling an item from the bottom leaf to the root.         |
+| ExtractMin               | `O(log n)`      | Sifting the replacement root down to the bottom leaf.      |
+| DecreaseKey              | `O(log n)`      | Moving the modified node upward toward the root.           |
+| **Build Heap** (Heapify) | `O(n)`          | Converting an unordered array into a valid heap bottom-up. |
+
+
+## 2.5 Python `heapq` module
+
+จริง ๆ python มี build-in module [heapq](https://docs.python.org/3/library/heapq.html) ให้ใช้อยู่แล้ว 
+
+```python
+import heapq
+
+# 1. Initialize an empty list to use as a heap
+numbers_heap = []
+
+# 2. Push elements onto the heap
+# It automatically maintains the heap invariant (smallest at index 0)
+heapq.heappush(numbers_heap, 15)
+heapq.heappush(numbers_heap, 5)
+heapq.heappush(numbers_heap, 20)
+heapq.heappush(numbers_heap, 3)
+
+print("Heap after pushes:", numbers_heap)  
+# Output: [3, 5, 20, 15] (The heap structure is not fully sorted)
+
+# 3. Peek at the smallest element without removing it
+print("Smallest element:", numbers_heap[0])  
+# Output: 3
+
+# 4. Pop elements from the heap
+# It always extracts and returns the smallest item
+print("Popped:", heapq.heappop(numbers_heap))  # Output: 3
+print("Popped:", heapq.heappop(numbers_heap))  # Output: 5
+print("Heap after pops:", numbers_heap)         # Output: [15, 20]
+```
+---
+
+# References
+
+- [Fibonacci Heaps or "How to invent an extremely clever data structure"](https://youtu.be/6JxvKfSV9Ns)
+- [Complete Binary Tree](https://www.geeksforgeeks.org/dsa/complete-binary-tree/)
+- [Binary Heap](https://www.geeksforgeeks.org/dsa/binary-heap/)
+---
+# NOTE
+
+## Data Structure Properties
+### Tree
+- Connected graph ที่ไม่มี cycle
+- Hierarchical Data Structure
+- มีได้แค่ path เดียวสำหรับ 2 nodes
+- hierarchical (**parent-child** relationship)
+### Binary Tree
+- Tree ที่ parent node มี children node ได้มากสุด 2 ตัว (left child, right child)
+### Complete Binary Tree
+- Binary Tree ที่ทุก level ต้องเติม node เต็มทั้งหมด (ยกเว้น level สุดท้ายของ tree)
+- Node ใน level สุดท้ายเรียงจากซ้ายไปขวา ไม่มีช่องว่าง
+### Binary Heap
+- เป็น **Complete Binary Tree** - ทุก level ต้อง full, เรียงจากซ้ายไปขวา
+- มี Heap Property - No child is smaller than its parent (for min-heap)
